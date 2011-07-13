@@ -1,0 +1,2 @@
+RPM Spec files for building correct Oracle JVM RPM packages based on jpackage spec 
+files. For building no-src rpm enable that option in spec file. 
