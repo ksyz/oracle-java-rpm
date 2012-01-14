@@ -34,7 +34,7 @@
 %define priority        1600
 %define javaver         1.6.0
 %define cvsver          6
-%define buildver        24
+%define buildver        30
 
 # TODO: Think about using conditionals for version variants.
 %define cvsversion	%{cvsver}u%{buildver}
@@ -79,8 +79,8 @@
 
 Name:           java-%{javaver}-%{origin}
 Version:        %{javaver}.%{buildver}
-Release:        2xz%{?dist}
-Epoch:          0
+Release:        1%{?dist}
+Epoch:          1
 Summary:        Java Runtime Environment for %{name}
 License:        Sun Binary Code License
 Group:          Development/Interpreters
