@@ -100,9 +100,7 @@ Conflicts:      kaffe
 BuildArch:      i586 x86_64
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  jpackage-utils >= 0:1.5.38, sed, %{_bindir}/perl
-#%ifnarch x86_64
-Provides:       javaws = %{epoch}:%{javaws_ver}
-#%endif
+Requires:       jpackage-utils >= 0:1.5.38
 Provides:       jndi = %{epoch}:%{version}, jndi-ldap = %{epoch}:%{version}
 Provides:       jndi-cos = %{epoch}:%{version}, jndi-rmi = %{epoch}:%{version}
 Provides:       jndi-dns = %{epoch}:%{version}
@@ -111,9 +109,7 @@ Provides:       jsse = %{epoch}:%{version}
 Provides:       jce = %{epoch}:%{version}
 Provides:       jdbc-stdext = %{epoch}:3.0, jdbc-stdext = %{epoch}:%{version}
 Provides:       java-sasl = %{epoch}:%{version}
-#%ifnarch x86_64
 Obsoletes:      javaws-menu
-#%endif
 
 %description
 This package contains the Java Runtime Environment for %{name}
@@ -150,7 +146,6 @@ Requires:       %{name} = %{epoch}:%{version}-%{release}
 %description    demo
 This package contains demonstration files for %{name}.
 
-# %ifnarch x86_64
 %package        plugin
 Summary:        Browser plugin files for %{name}
 Group:          Internet/WWW/Browsers
@@ -164,7 +159,6 @@ Obsoletes:      java-1.3.1-plugin, java-1.4.0-plugin, java-1.4.1-plugin, java-1.
 %description    plugin
 This package contains browser plugin files for %{name}.
 Note!  This package supports browsers built with GCC 3.2 and later.
-# %endif
 
 %package        fonts
 Summary:        TrueType fonts for %{origin} JVMs
@@ -216,13 +210,11 @@ EOF
 chmod -R go=u-w *
 chmod -R u+w *
 
-#%ifnarch x86_64
 # make sure the plugin exists
 _OJI_PLUGIN=$(echo %pluginname | sed 's|%{_jvmdir}/%{jredir}|jre|')
 if [ ! -f $_OJI_PLUGIN ]; then
   exit 1
 fi
-#%endif
 
 %build
 # Nope.
@@ -276,9 +268,7 @@ popd
 
 # rest of the jre
 cp -a jre/bin jre/lib $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}
-#%ifnarch x86_64
 cp -a jre/javaws jre/plugin $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}
-#%endif
 install -d -m 755 $RPM_BUILD_ROOT%{_jvmdir}/%{jredir}/lib/endorsed
 
 # jce policy file handling
@@ -301,7 +291,6 @@ ln -s %{sdkdir} %{jrelnk}
 ln -s %{sdkdir} %{sdklnk}
 popd
 
-#%ifnarch x86_64
 # ControlPanel freedesktop.org menu entry
 perl -p -i -e 's|INSTALL_DIR/JRE_NAME_VERSION|%{_jvmdir}/%{jredir}|g' jre/plugin/desktop/sun_java.desktop
 perl -p -i -e 's|Name=.*|Name=Java Plugin Control Panel \(%{name}\)|' jre/plugin/desktop/sun_java.desktop
@@ -322,7 +311,6 @@ Terminal=0
 Type=Application
 Categories=Application;Settings;X-Sun-Supported;X-Red-Hat-Base;
 EOF
-#%endif
 
 # man pages
 install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man1
@@ -334,12 +322,10 @@ done
 install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/%{name}
 cp -a demo $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-#%ifnarch x86_64
 # ghost plugin installation lists
 for i in mozilla firefox ; do
   touch $RPM_BUILD_ROOT%{_datadir}/%{name}/$i-plugin-dirs
 done
-#%endif
 
 ### font handling
 
@@ -376,10 +362,8 @@ find $RPM_BUILD_ROOT%{_jvmdir}/%{jredir} -type d \
 find $RPM_BUILD_ROOT%{_jvmdir}/%{jredir} -type f -o -type l \
   | sed 's|'$RPM_BUILD_ROOT'||'      >> %{name}-%{version}-all.files
 
-#%ifnarch x86_64
 grep plugin  %{name}-%{version}-all.files | sort \
   > %{name}-%{version}-plugin.files
-#%endif
 grep Jdbc    %{name}-%{version}-all.files | sort \
   > %{name}-%{version}-jdbc.files
 grep -F alsa.so %{name}-%{version}-all.files | sort \
@@ -461,7 +445,6 @@ update-alternatives \
     jce_%{javaver}_%{origin}_us_export_policy \
     %{_jvmprivdir}/%{name}/jce/vanilla/US_export_policy.jar
 
-#%ifnarch x86_64
 if [ -f %{_sysconfdir}/mime.types ]; then
    perl -p -i -e 's|application/x-java-jnlp-file.*||g' %{_sysconfdir}/mailcap.bak 2>/dev/null
    echo "type=application/x-java-jnlp-file; description=\"Java Web Start\"; exts=\"jnlp\"" >> %{_sysconfdir}/mailcap 2>/dev/null
@@ -469,8 +452,6 @@ if [ -f %{_sysconfdir}/mime.types ]; then
    perl -p -i -e 's|application/x-java-jnlp-file.*||g' %{_sysconfdir}/mime.types 2>/dev/null
    echo "application/x-java-jnlp-file      jnlp" >> %{_sysconfdir}/mime.types 2>/dev/null
 fi
-#%endif
-
 
 %post devel
 ext=
@@ -599,7 +580,6 @@ TMPFILE=$(/bin/mktemp -q /tmp/fonts.conf.XXXXXX) && \
 /bin/cat $TMPFILE > %{fontconfigdir}/fonts.conf && /bin/rm $TMPFILE
 
 
-#%ifnarch x86_64
 %triggerun plugin -- mozilla, %{_bindir}/mozilla
 {
   list=%{_datadir}/%{name}/mozilla-plugin-dirs
@@ -612,10 +592,8 @@ TMPFILE=$(/bin/mktemp -q /tmp/fonts.conf.XXXXXX) && \
   done < $list
   rm -f $list
 } >/dev/null || :
-#%endif
 
 
-#%ifnarch x86_64
 %triggerun plugin -- firefox, %{_bindir}/firefox
 {
   list=%{_datadir}/%{name}/firefox-plugin-dirs
@@ -642,7 +620,6 @@ TMPFILE=$(/bin/mktemp -q /tmp/fonts.conf.XXXXXX) && \
     fi
   done
 } >/dev/null || :
-#%endif
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -709,9 +686,7 @@ fi
 %config(noreplace) %{_jvmdir}/%{jredir}/lib/security/blacklist
 %config(noreplace) %{_jvmdir}/%{jredir}/lib/security/trusted.libraries
 
-#%ifnarch x86_64
 %config(noreplace) %{_jvmdir}/%{jredir}/lib/security/javaws.policy
-#%endif
 %ghost %{_jvmdir}/%{jredir}/lib/security/local_policy.jar
 %ghost %{_jvmdir}/%{jredir}/lib/security/US_export_policy.jar
 %{_jvmdir}/%{jrelnk}
@@ -726,10 +701,8 @@ fi
 %{_mandir}/man1/servertool-%{name}.1*
 %{_mandir}/man1/tnameserv-%{name}.1*
 %{_mandir}/man1/javaws-%{name}.1*
-#%ifnarch x86_64
 %{_datadir}/applications/*.desktop
 %{_datadir}/pixmaps/*.png
-#%endif
 
 %files devel
 %defattr(-,root,root,-)
@@ -792,12 +765,10 @@ fi
 %files jdbc -f %{name}-%{version}-jdbc.files
 %defattr(-,root,root,-)
 
-#%ifnarch x86_64
 %files plugin -f %{name}-%{version}-plugin.files
 %defattr(-,root,root,-)
 %dir %{_datadir}/%{name}
 %ghost %{_datadir}/%{name}/*-plugin-dirs
-#%endif
 
 %files fonts
 %defattr(0644,root,root,0755)
@@ -812,7 +783,12 @@ fi
 %ghost %{fontdir}/XftCache
 %ghost %{fontdir}/encodings.dir
 
+
 %changelog
+* Sat Jan 14 2012 Michael Leinartas <mleinartas@gmail.com> - 1:1.6.0.30-1
+- Update to 1.6.0_30
+- Update epoch to 1 for RHEL compatibility
+
 * Wed Mar 23 2011 Michal Ingeli <mi@v3.sk> - 0:1.6.0.24-1xz
 - Update to 1.6.0_24-b07
 - Removed extra security patch for CVE-2010-4476.
