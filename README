@@ -1,2 +1,9 @@
 RPM Spec files for building correct Oracle JVM RPM packages based on jpackage spec 
-files. For building no-src rpm enable that option in spec file. 
+files. 
+For building no-src rpm use NoSource option in spec file.
+
+1. Download JDK (.bin, not the rpm package) from oracle web site into SOURCES directory
+2. Download desired spec file 
+3. Download *xsl from SOURCES and place them into local SOURCES directory
+4. Rebuild with 
+   rpmbuild -bb SPECS/java-1.6.0-sun-RELEASE.spec
